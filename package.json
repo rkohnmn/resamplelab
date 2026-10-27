@@ -1,0 +1,11 @@
+{
+  "name": "resamplelab",
+  "version": "1.0.0",
+  "description": "ResampleLab — Interactive laboratory for probability, sampling, bootstrap estimation, permutation testing, and statistical inference in the DataSense Studio ecosystem.",
+  "type": "module",
+  "scripts": {
+    "test": "node --test tests/*.test.js",
+    "verify": "python3 tests/verify-build.py"
+  },
+  "license": "MIT"
+}

@@ -1,0 +1,1267 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ResampleLab — Probability, Sampling, Bootstrap, Permutation &amp; Computational Inference Studio</title>
+  <meta name="description" content="Explore randomness. Measure uncertainty. Understand evidence. An interactive laboratory for probability, sampling, bootstrap estimation, permutation testing, and statistical inference.">
+  <link rel="stylesheet" href="./css/tokens.css">
+  <link rel="stylesheet" href="./css/base.css">
+  <link rel="stylesheet" href="./css/components.css">
+  <link rel="stylesheet" href="./css/print.css">
+</head>
+<body>
+  <a href="#main-workspace" class="skip-link">Skip to main statistical workspace</a>
+
+  <!-- ====================================================================
+       TOP INSTRUMENT HEADER & EXPLANATION LEVEL SWITCHER
+       ==================================================================== -->
+  <header class="instrument-header" role="banner">
+    <div class="header-top-row">
+      <div class="brand-block">
+        <span class="brand-title">ResampleLab</span>
+        <span class="brand-badge">DataSense Studio v1.0</span>
+        <span class="brand-tagline">Explore randomness. Measure uncertainty. Understand evidence.</span>
+      </div>
+
+      <div class="header-controls">
+        <div class="segmented-group" role="group" aria-label="Explanation Depth Mode">
+          <button type="button" class="seg-btn" id="mode-btn-simple" data-exp-mode="simple" title="Plain-language intuition for general learners">Simple</button>
+          <button type="button" class="seg-btn active" id="mode-btn-standard" data-exp-mode="standard" title="Statistical terminology, assumptions, and interpretation">Standard</button>
+          <button type="button" class="seg-btn" id="mode-btn-technical" data-exp-mode="technical" title="Mathematical formulas, algorithms, and Monte Carlo precision">Technical</button>
+        </div>
+
+        <button type="button" class="btn btn-sm" id="btn-share-url" title="Copy shareable URL hash state"># Share State</button>
+        <button type="button" class="btn btn-sm" id="btn-print-view" title="Print classroom worksheet or report">Print / PDF</button>
+        <button type="button" class="btn btn-sm" id="btn-theme-toggle" aria-label="Toggle dark instrument theme">Dark Mode</button>
+      </div>
+    </div>
+
+    <nav class="dest-nav-bar" aria-label="Primary Laboratories and Reference Destinations">
+      <div class="dest-nav-inner" role="tablist">
+        <button type="button" role="tab" class="nav-tab-btn active" data-dest="sampling" id="tab-sampling">1. Sampling Lab</button>
+        <button type="button" role="tab" class="nav-tab-btn" data-dest="distributions" id="tab-distributions">2. Distribution Explorer</button>
+        <button type="button" role="tab" class="nav-tab-btn" data-dest="bootstrap" id="tab-bootstrap">3. Bootstrap Studio</button>
+        <button type="button" role="tab" class="nav-tab-btn" data-dest="permutation" id="tab-permutation">4. Permutation Studio</button>
+        <button type="button" role="tab" class="nav-tab-btn" data-dest="workbench" id="tab-workbench">5. Inference Workbench</button>
+        <button type="button" role="tab" class="nav-tab-btn" data-dest="experiments" id="tab-experiments">6. Experiment Simulator</button>
+        <button type="button" role="tab" class="nav-tab-btn" data-dest="unity" id="tab-unity">7. One Dataset, Different Questions</button>
+        <button type="button" role="tab" class="nav-tab-btn" data-dest="atlas" id="tab-atlas">8. Inference Atlas</button>
+        <button type="button" role="tab" class="nav-tab-btn" data-dest="investigations" id="tab-investigations">9. Guided Investigations</button>
+        <button type="button" role="tab" class="nav-tab-btn" data-dest="methods" id="tab-methods">10. Methods &amp; Overview</button>
+      </div>
+    </nav>
+  </header>
+
+  <!-- ====================================================================
+       MAIN STATISTICAL WORKSPACE CONTAINER
+       ==================================================================== -->
+  <main id="main-workspace" class="workspace-container" role="main">
+
+    <!-- ==================================================================
+         DESTINATION 1: SAMPLING LABORATORY (Population -> Sample -> Sampling Dist, LLN, CLT)
+         ================================================================== -->
+    <section id="view-sampling" class="dest-view active" aria-labelledby="tab-sampling">
+      <div class="module-card" style="padding: 12px 16px; margin-bottom: 14px;">
+        <div style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:10px;">
+          <div class="pipeline-flow">
+            <strong class="serif-heading" style="font-size:16px; margin-right:4px;">Core Hierarchy:</strong>
+            <span class="pipeline-step">1. Population (<span class="math-tex">F</span>, fixed <span class="math-tex">θ</span>)</span>
+            <span class="pipeline-arrow">&rarr;</span>
+            <span class="pipeline-step">2. Sample (<span class="math-tex">S</span>, size <span class="math-tex">n</span>, spread <span class="math-tex">s</span>)</span>
+            <span class="pipeline-arrow">&rarr;</span>
+            <span class="pipeline-step">3. Statistic (<span class="math-tex">θ&#770; = T(S)</span>)</span>
+            <span class="pipeline-arrow">&rarr;</span>
+            <span class="pipeline-step">4. Sampling Dist (<span class="math-tex">B</span> draws, spread <span class="math-tex">SE</span>)</span>
+          </div>
+          <div class="btn-row" style="margin-top:0;">
+            <button type="button" class="btn btn-sm" data-quick-jump="bootstrap">Bootstrap a Statistic &rarr;</button>
+            <button type="button" class="btn btn-sm" data-quick-jump="permutation">Run Permutation Test &rarr;</button>
+            <button type="button" class="btn btn-sm" data-quick-jump="workbench">Analyze Uploaded Data &rarr;</button>
+            <button type="button" class="btn btn-sm" data-quick-jump="unity">Compare Sampling vs Bootstrap vs Null &rarr;</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="studio-grid">
+        <!-- Left Controls -->
+        <aside class="module-card">
+          <div class="module-header">
+            <h2 class="module-title">Population &amp; Sampling Controls</h2>
+          </div>
+
+          <div class="control-group">
+            <label class="control-label" for="samp-pop-dist">Population Distribution (<span class="math-tex">F</span>)</label>
+            <select id="samp-pop-dist" class="control-select">
+              <option value="normal">Normal (μ = 50, σ = 12)</option>
+              <option value="exponential">Exponential (Right-Skewed, λ = 0.2)</option>
+              <option value="lognormal">Lognormal (Heavy Skew, μ_log = 1.2, σ_log = 0.7)</option>
+              <option value="continuous_uniform">Continuous Uniform [0, 100]</option>
+              <option value="gaussian_mixture">Bimodal Gaussian Mixture</option>
+              <option value="student_t">Student's t (Heavy Tails, ν = 3)</option>
+              <option value="binomial">Discrete Binomial (n = 20, p = 0.35)</option>
+              <option value="poisson">Discrete Poisson (λ = 4.5)</option>
+            </select>
+          </div>
+
+          <div class="control-group">
+            <label class="control-label" for="samp-mechanism">Sampling Mechanism</label>
+            <select id="samp-mechanism" class="control-select">
+              <option value="srswr">Independent Sampling WITH Replacement (i.i.d.)</option>
+              <option value="srswor">Simple Random Sampling WITHOUT Replacement (Finite N)</option>
+              <option value="stratified">Stratified Proportional Sampling (2 Strata)</option>
+              <option value="cluster">Cluster Sampling (Primary Clusters)</option>
+            </select>
+          </div>
+
+          <div class="control-group" id="samp-finite-N-wrap">
+            <label class="control-label" for="samp-finite-N">
+              <span>Finite Population Size (<span class="math-tex">N</span>)</span>
+              <span class="mono" id="samp-finite-N-lbl">250</span>
+            </label>
+            <input type="range" id="samp-finite-N" class="control-range" min="40" max="1000" step="10" value="250">
+          </div>
+
+          <div class="control-group">
+            <label class="control-label" for="samp-n">
+              <span>Sample Size (<span class="math-tex">n</span>, per sample)</span>
+              <span class="mono" id="samp-n-lbl">25</span>
+            </label>
+            <input type="range" id="samp-n" class="control-range" min="2" max="200" step="1" value="25">
+          </div>
+
+          <div class="control-group">
+            <label class="control-label" for="samp-stat">Target Sample Statistic (<span class="math-tex">θ&#770;</span>)</label>
+            <select id="samp-stat" class="control-select">
+              <option value="mean">Sample Mean (X̄)</option>
+              <option value="median">Sample Median (X̃)</option>
+              <option value="trimmed_mean">10% Trimmed Mean</option>
+              <option value="sd">Sample Standard Deviation (s)</option>
+              <option value="iqr">Interquartile Range (IQR)</option>
+            </select>
+          </div>
+
+          <div class="control-group">
+            <label class="control-label" for="samp-B">
+              <span>Repeated Samples (<span class="math-tex">B</span>, simulation count)</span>
+              <span class="mono" id="samp-B-lbl">1000</span>
+            </label>
+            <input type="range" id="samp-B" class="control-range" min="100" max="5000" step="100" value="1000">
+          </div>
+
+          <div class="control-group">
+            <label class="control-label" for="samp-seed">Simulation PRNG Seed</label>
+            <div style="display:flex; gap:6px;">
+              <input type="number" id="samp-seed" class="control-input mono-input" value="4289104">
+              <button type="button" class="btn btn-sm" id="btn-samp-new-seed">New Seed</button>
+            </div>
+          </div>
+
+          <div class="btn-row">
+            <button type="button" class="btn btn-primary" id="btn-samp-draw-one">Draw 1 Sample</button>
+            <button type="button" class="btn btn-primary" id="btn-samp-run-batch">Run B Samples</button>
+            <button type="button" class="btn" id="btn-samp-animate">Animate Step</button>
+            <button type="button" class="btn" id="btn-samp-reset">Reset</button>
+          </div>
+        </aside>
+
+        <!-- Center Linked Visualizations -->
+        <div class="module-card">
+          <div class="module-header">
+            <h2 class="module-title">Synchronized Sampling Hierarchy &amp; Limit Theorems</h2>
+            <div class="segmented-group" role="group" aria-label="Sampling Sub-View">
+              <button type="button" class="seg-btn active" data-samp-subview="hierarchy" id="btn-samp-view-hier">3-Stage Hierarchy &amp; CLT</button>
+              <button type="button" class="seg-btn" data-samp-subview="lln" id="btn-samp-view-lln">Law of Large Numbers &amp; Q-Q</button>
+            </div>
+          </div>
+
+          <div id="samp-subview-hierarchy">
+            <div class="canvas-frame">
+              <div class="canvas-caption">
+                <strong>Stage 1 — Population Distribution (<span class="math-tex">F</span>): True Parameter <span class="math-tex">θ</span> is Fixed</strong>
+                <span class="mono" id="samp-pop-caption-stats"></span>
+              </div>
+              <canvas id="canvas-samp-pop" class="plot-canvas" aria-label="Population distribution plot"></canvas>
+            </div>
+
+            <div class="canvas-frame">
+              <div class="canvas-caption">
+                <strong>Stage 2 — One Realized Sample (<span class="math-tex">S</span>, size <span class="math-tex">n</span>): Spread is Sample SD <span class="math-tex">s</span></strong>
+                <span class="mono" id="samp-one-caption-stats"></span>
+              </div>
+              <canvas id="canvas-samp-one" class="plot-canvas" aria-label="Single realized sample histogram"></canvas>
+            </div>
+
+            <div class="canvas-frame">
+              <div class="canvas-caption">
+                <strong>Stage 3 — Sampling Distribution of Statistic across <span class="math-tex">B</span> Samples: Spread is Standard Error (<span class="math-tex">SE</span>)</strong>
+                <span class="mono" id="samp-dist-caption-stats"></span>
+              </div>
+              <canvas id="canvas-samp-dist" class="plot-canvas" aria-label="Sampling distribution of the sample statistic"></canvas>
+              <div class="legend-bar">
+                <span class="legend-item"><span class="legend-swatch" style="background:var(--color-primary);"></span>Empirical Sampling Distribution</span>
+                <span class="legend-item"><span class="legend-swatch" style="background:var(--color-secondary);"></span>True Population Parameter (<span class="math-tex">θ</span>)</span>
+                <span class="legend-item"><span class="legend-swatch" style="background:var(--color-alt-model);"></span>Theoretical CLT Normal Overlay <span class="math-tex">𝒩(μ, SE<sup>2</sup>)</span></span>
+              </div>
+            </div>
+          </div>
+
+          <div id="samp-subview-lln" style="display:none;">
+            <div class="canvas-frame">
+              <div class="canvas-caption">
+                <strong>Law of Large Numbers (LLN): 4 Independent Running Sample Average Realizations</strong>
+              </div>
+              <canvas id="canvas-samp-lln" class="plot-canvas" aria-label="Law of Large Numbers running average plot"></canvas>
+            </div>
+            <div class="canvas-frame">
+              <div class="canvas-caption">
+                <strong>Central Limit Theorem Normality Check: Normal Quantile-Quantile (Q-Q) Plot of <span class="math-tex">θ&#770;</span></strong>
+              </div>
+              <canvas id="canvas-samp-qq" class="plot-canvas" aria-label="Normal Q-Q plot of sample statistics"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Inspector -->
+        <aside class="module-card col-inspector">
+          <div class="module-header">
+            <h2 class="module-title">Results &amp; Mathematical Interpretation</h2>
+          </div>
+
+          <div class="kpi-grid">
+            <div class="kpi-box">
+              <span class="kpi-label">True Parameter (<span class="math-tex">θ</span>)</span>
+              <span class="kpi-val vermilion" id="kpi-samp-true-param">—</span>
+            </div>
+            <div class="kpi-box">
+              <span class="kpi-label">Last Sample <span class="math-tex">θ&#770;</span></span>
+              <span class="kpi-val emerald" id="kpi-samp-last-stat">—</span>
+            </div>
+            <div class="kpi-box">
+              <span class="kpi-label">Empirical Mean(<span class="math-tex">θ&#770;</span>)</span>
+              <span class="kpi-val" id="kpi-samp-emp-mean">—</span>
+            </div>
+            <div class="kpi-box">
+              <span class="kpi-label">Empirical <span class="math-tex">SE(θ&#770;)</span></span>
+              <span class="kpi-val emerald" id="kpi-samp-emp-se">—</span>
+            </div>
+            <div class="kpi-box">
+              <span class="kpi-label">Theoretical <span class="math-tex">SE(<span class="m-overline">X</span>)</span></span>
+              <span class="kpi-val" id="kpi-samp-theo-se">—</span>
+            </div>
+            <div class="kpi-box">
+              <span class="kpi-label">FPC Factor</span>
+              <span class="kpi-val amber" id="kpi-samp-fpc">1.0000</span>
+            </div>
+          </div>
+
+          <div id="samp-Dynamic-Explanation" class="callout"></div>
+          <div id="samp-Warning-Box"></div>
+
+          <details class="collapsible-panel" open>
+            <summary>Raw vs Sampling Distribution Comparison</summary>
+            <div class="collapsible-body" style="padding:0;">
+              <div class="table-scroll" style="border:none;">
+                <table class="stat-table" aria-label="Comparison of Population, Single Sample, and Sampling Distribution">
+                  <thead>
+                    <tr>
+                      <th>Distribution Object</th>
+                      <th class="num">Center</th>
+                      <th class="num">Spread</th>
+                      <th class="num">Skewness</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tbody-samp-comparison"></tbody>
+                </table>
+              </div>
+            </div>
+          </details>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ==================================================================
+         DESTINATION 2: PROBABILITY DISTRIBUTION EXPLORER (19 Families)
+         ================================================================== -->
+    <section id="view-distributions" class="dest-view" aria-labelledby="tab-distributions">
+      <div class="studio-grid">
+        <aside class="module-card">
+          <div class="module-header">
+            <h2 class="module-title">Distribution Family &amp; Parameters</h2>
+          </div>
+
+          <div class="control-group">
+            <label class="control-label" for="dist-family-select">Select Probability Family (19 Supported)</label>
+            <select id="dist-family-select" class="control-select">
+              <optgroup label="Continuous Distributions (10)">
+                <option value="normal">Normal / Gaussian N(μ, σ²)</option>
+                <option value="student_t">Student's t(ν)</option>
+                <option value="exponential">Exponential Exp(λ)</option>
+                <option value="gamma">Gamma(shape α, scale θ)</option>
+                <option value="beta">Beta(α, β)</option>
+                <option value="chi_square">Chi-Square χ²(k)</option>
+                <option value="f_distribution">Snedecor's F(d₁, d₂)</option>
+                <option value="lognormal">Lognormal(μ_log, σ_log)</option>
+                <option value="continuous_uniform">Continuous Uniform(a, b)</option>
+                <option value="gaussian_mixture">Gaussian Mixture (Bimodal)</option>
+              </optgroup>
+              <optgroup label="Discrete Distributions (9)">
+                <option value="binomial">Binomial Bin(n, p)</option>
+                <option value="bernoulli">Bernoulli Bern(p)</option>
+                <option value="poisson">Poisson Pois(λ)</option>
+                <option value="geometric">Geometric Geom(p) (Failures before 1st success)</option>
+                <option value="negative_binomial">Negative Binomial NegBin(r, p)</option>
+                <option value="hypergeometric">Hypergeometric Hypergeom(N, K, n)</option>
+                <option value="discrete_uniform">Discrete Uniform DUnif(a, b)</option>
+                <option value="custom_discrete">User-Defined Finite Discrete Table</option>
+                <option value="empirical_discrete">Empirical Distribution F̂ₙ</option>
+              </optgroup>
+            </select>
+          </div>
+
+          <div id="dist-dynamic-params"></div>
+
+          <div class="control-group">
+            <label class="control-label" for="dist-range-a">Lower Cutoff (<span class="math-tex">a</span>) for <span class="math-tex">P(a ≤ X ≤ b)</span> &amp; Tails</label>
+            <input type="number" id="dist-range-a" class="control-input mono-input" step="0.2" value="-1.0">
+          </div>
+
+          <div class="control-group">
+            <label class="control-label" for="dist-range-b">Upper Cutoff (<span class="math-tex">b</span>) for Interval <span class="math-tex">P(a ≤ X ≤ b)</span></label>
+            <input type="number" id="dist-range-b" class="control-input mono-input" step="0.2" value="1.5">
+          </div>
+
+          <div class="control-group">
+            <label class="control-label" for="dist-quantile-q">Target Quantile Probability <span class="math-tex">q ∈ (0, 1)</span></label>
+            <input type="number" id="dist-quantile-q" class="control-input mono-input" min="0.001" max="0.999" step="0.025" value="0.95">
+          </div>
+
+          <div class="control-group">
+            <label class="control-label" for="dist-compare-overlay">Distribution Comparison Overlay (Part 7.6)</label>
+            <select id="dist-compare-overlay" class="control-select">
+              <option value="none">None (Single Distribution)</option>
+              <option value="std_normal">Standard Normal N(0, 1) Reference</option>
+              <option value="moment_normal">Moment-Matched Normal N(E[X], Var(X))</option>
+              <option value="heavy_t3">Heavy-Tailed Student t(df = 3)</option>
+            </select>
+          </div>
+
+          <div class="control-group">
+            <label class="control-label" for="dist-sim-n">Overlay Simulated Sample Size (<span class="math-tex">n</span>)</label>
+            <input type="number" id="dist-sim-n" class="control-input mono-input" min="10" max="5000" step="50" value="300">
+          </div>
+
+          <div class="btn-row">
+            <button type="button" class="btn btn-primary" id="btn-dist-draw-sample">Simulate n Draws</button>
+            <button type="button" class="btn" id="btn-dist-clear-sample">Clear Sample Overlay</button>
+          </div>
+        </aside>
+
+        <div class="module-card">
+          <div class="module-header">
+            <h2 class="module-title">Theoretical Density / Mass, Shaded Regions, &amp; CDF</h2>
+            <div class="segmented-group" role="group" aria-label="Distribution Function View">
+              <button type="button" class="seg-btn active" data-dist-view="pdf_pmf" id="btn-dist-view-pdf">PDF / PMF</button>
+              <button type="button" class="seg-btn" data-dist-view="cdf" id="btn-dist-view-cdf">Cumulative CDF F(x)</button>
+            </div>
+          </div>
+
+          <div class="canvas-frame">
+            <canvas id="canvas-dist-main" class="plot-canvas" aria-label="Probability distribution plot"></canvas>
+            <div class="legend-bar">
+              <span class="legend-item"><span class="legend-swatch" style="background:var(--color-primary);"></span>Theoretical Curve &amp; Shaded <span class="math-tex">P(a ≤ X ≤ b)</span></span>
+              <span class="legend-item"><span class="legend-swatch" style="background:var(--color-secondary);"></span>Expected Value <span class="math-tex">E[X]</span></span>
+              <span class="legend-item"><span class="legend-swatch" style="background:var(--color-warning);"></span>Simulated Empirical Sample Overlay</span>
+            </div>
+          </div>
+
+          <div class="callout" id="dist-param-note"></div>
+        </div>
+
+        <aside class="module-card col-inspector">
+          <div class="module-header">
+            <h2 class="module-title">Exact Moments, Tail Probabilities, &amp; Quantiles</h2>
+          </div>
+
+          <div class="kpi-grid">
+            <div class="kpi-box">
+              <span class="kpi-label">Expected Value <span class="math-tex">E[X]</span></span>
+              <span class="kpi-val emerald" id="kpi-dist-mean">—</span>
+            </div>
+            <div class="kpi-box">
+              <span class="kpi-label">Variance <span class="math-tex"><span style="font-style:normal;font-family:var(--font-body);">Var</span>(X)</span></span>
+              <span class="kpi-val" id="kpi-dist-var">—</span>
+            </div>
+            <div class="kpi-box">
+              <span class="kpi-label">Std Dev <span class="math-tex">σ</span></span>
+              <span class="kpi-val" id="kpi-dist-sd">—</span>
+            </div>
+            <div class="kpi-box">
+              <span class="kpi-label">Skewness <span class="math-tex">γ<sub>1</sub></span></span>
+              <span class="kpi-val" id="kpi-dist-skew">—</span>
+            </div>
+            <div class="kpi-box">
+              <span class="kpi-label">Interval <span class="math-tex">P(a ≤ X ≤ b)</span></span>
+              <span class="kpi-val emerald" id="kpi-dist-p-int">—</span>
+            </div>
+            <div class="kpi-box">
+              <span class="kpi-label">Quantile <span class="math-tex">F<sup>-1</sup>(q)</span></span>
+              <span class="kpi-val vermilion" id="kpi-dist-quant">—</span>
+            </div>
+          </div>
+
+          <div class="table-scroll" style="margin-bottom:12px;">
+            <table class="stat-table" aria-label="Probability and Density Readouts">
+              <thead>
+                <tr>
+                  <th>Quantity</th>
+                  <th class="num">Value</th>
+                </tr>
+              </thead>
+              <tbody id="tbody-dist-probs"></tbody>
+            </table>
+          </div>
+
+          <div id="dist-interpretation-box" class="callout"></div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ==================================================================
+         DESTINATION 3: BOOTSTRAP STUDIO (5 CI Methods, Bias, SE, Diagnostics)
+         ================================================================== -->
+    <section id="view-bootstrap" class="dest-view" aria-labelledby="tab-bootstrap">
+      <div class="studio-grid">
+        <aside class="module-card">
+          <div class="module-header">
+            <h2 class="module-title">Bootstrap Configuration</h2>
+          </div>
+
+          <div class="control-group">
+            <label class="control-label" for="boot-preset-select">Dataset Source</label>
+            <select id="boot-preset-select" class="control-select">
+              <option value="skewed_repair_times">Telecom Fiber Repair Times (Right-Skewed, n=24)</option>
+              <option value="mercury_fish_levels">Lake Trout Mercury Levels (Outliers, n=18)</option>
+              <option value="voter_poll_binary">Transit Referendum Poll (Binary 0/1, n=80)</option>
+              <option value="sleep_deprivation_trial">Sleep Deprivation vs Control (2 Indep Groups)</option>
+              <option value="cardioprotective_binary_trial">Surgical Complication Rate (2 Binary Groups)</option>
+              <option value="wetsuit_swim_paired">Triathlon Wetsuit Velocity (Paired, n=12)</option>
+              <option value="anscombe_quartet_1">Anscombe's Quartet I (Bivariate Slope/r, n=11)</option>
+              <option value="dependent_ar1_sensor_series">Autocorrelated Sensor Stream (Dependent Warning!)</option>
+              <option value="custom_workbench">Active Custom Dataset from Inference Workbench</option>
+            </select>
+          </div>
+
+          <div class="control-group">
+            <label class="control-label" for="boot-stat-select">Target Estimand &amp; Statistic (<span class="math-tex">θ&#770;</span>)</label>
+            <select id="boot-stat-select" class="control-select"></select>
+          </div>
+
+          <div class="control-group">
+            <label class="control-label" for="boot-ci-primary">Highlighted Interval Method on Histogram</label>
+            <select id="boot-ci-primary" class="control-select">
+              <option value="percentile">Percentile Bootstrap Interval</option>
+              <option value="bca">BCa (Bias-Corrected &amp; Accelerated) Interval</option>
+              <option value="studentized">Studentized (Bootstrap-t) Interval</option>
+              <option value="normal">Normal SE Bootstrap Interval</option>
+              <option value="basic">Basic (Reverse-Percentile) Interval</option>
+            </select>
+          </div>
+
+          <div class="control-group">
+            <label class="control-label" for="boot-conf-level">Confidence Level (<span class="math-tex">1 - α</span>)</label>
+            <select id="boot-conf-level" class="control-select">
+              <option value="0.90">90% Confidence</option>
+              <option value="0.95" selected>95% Confidence</option>
+              <option value="0.99">99% Confidence</option>
+            </select>
+          </div>
+
+          <div class="control-group">
+            <label class="control-label" for="boot-replicates">
+              <span>Bootstrap Replicates (<span class="math-tex">B</span>)</span>
+              <span class="mono" id="boot-B-lbl">2000</span>
+            </label>
+            <input type="range" id="boot-replicates" class="control-range" min="200" max="10000" step="200" value="2000">
+          </div>
+
+          <div class="control-group">
+            <label class="control-label" for="boot-seed">Random Seed (Mulberry32)</label>
+            <div style="display:flex; gap:6px;">
+              <input type="number" id="boot-seed" class="control-input mono-input" value="4289104">
+              <button type="button" class="btn btn-sm" id="btn-boot-new-seed">New Seed</button>
+            </div>
+          </div>
+
+          <div class="btn-row">
+            <button type="button" class="btn btn-primary" id="btn-boot-run">Run Bootstrap (B Resamples)</button>
+            <button type="button" class="btn" id="btn-boot-export-csv">Export CSV</button>
+            <button type="button" class="btn" id="btn-boot-export-r">Export R / Python</button>
+          </div>
+        </aside>
+
+        <div class="module-card">
+          <div class="module-header">
+            <h2 class="module-title">Bootstrap Distribution &amp; Synchronized Interval Comparison</h2>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <div class="segmented-group" role="group" aria-label="Bootstrap Plot Type">
+                <button type="button" class="seg-btn active" data-boot-plot="histogram" id="btn-boot-plot-hist">Histogram</button>
+                <button type="button" class="seg-btn" data-boot-plot="ecdf" id="btn-boot-plot-ecdf">Bootstrap ECDF</button>
+              </div>
+              <span class="status-pill tool" id="boot-resampling-badge">Case Resampling WITH Replacement</span>
+            </div>
+          </div>
+
+          <div id="boot-warnings-container"></div>
+
+          <div class="canvas-frame">
+            <div class="canvas-caption">
+              <strong>Bootstrap Distribution of <span class="math-tex">θ&#770;<sup>*1</sup>, …, θ&#770;<sup>*B</sup></span> (Conditional on Observed Sample)</strong>
+              <span class="mono" id="boot-dist-subtitle"></span>
+            </div>
+            <canvas id="canvas-boot-dist" class="plot-canvas" aria-label="Bootstrap statistic distribution"></canvas>
+            <div class="legend-bar">
+              <span class="legend-item"><span class="legend-swatch" style="background:var(--color-primary);"></span>Selected Confidence Interval Region</span>
+              <span class="legend-item"><span class="legend-swatch" style="background:var(--color-warning);"></span>Observed Point Estimate (<span class="math-tex">θ&#770;</span>)</span>
+              <span class="legend-item"><span class="legend-swatch" style="background:var(--color-secondary);"></span>Bootstrap Mean (<span class="math-tex"><span class="m-overline">θ</span><sup>*</sup></span>)</span>
+            </div>
+          </div>
+
+          <div class="canvas-frame">
+            <canvas id="canvas-boot-ci-comp" class="plot-canvas" aria-label="Comparison of bootstrap confidence interval procedures"></canvas>
+          </div>
+
+          <details class="collapsible-panel">
+            <summary>Inspect Individual Bootstrap Resamples (First 5 Draws WITH Replacement)</summary>
+            <div class="collapsible-body" style="padding:0;">
+              <div class="table-scroll" style="border:none;">
+                <table class="stat-table" aria-label="Example individual bootstrap resamples">
+                  <thead>
+                    <tr>
+                      <th>Resample #</th>
+                      <th class="num">Replicate Statistic (<span class="math-tex">θ&#770;<sup>*b</sup></span>)</th>
+                      <th>Sampled Observations Preview (Drawn WITH Replacement)</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tbody-boot-resamples"></tbody>
+                </table>
+              </div>
+            </div>
+          </details>
+        </div>
+
+        <aside class="module-card col-inspector">
+          <div class="module-header">
+            <h2 class="module-title">Bootstrap Summary &amp; All 5 Intervals</h2>
+          </div>
+
+          <div class="kpi-grid">
+            <div class="kpi-box">
+              <span class="kpi-label">Observed <span class="math-tex">θ&#770;</span></span>
+              <span class="kpi-val amber" id="kpi-boot-est">—</span>
+            </div>
+            <div class="kpi-box">
+              <span class="kpi-label">Bootstrap Mean <span class="math-tex"><span class="m-overline">θ</span><sup>*</sup></span></span>
+              <span class="kpi-val" id="kpi-boot-mean">—</span>
+            </div>
+            <div class="kpi-box">
+              <span class="kpi-label">Bootstrap <span class="math-tex">SE<sub><span style="font-style:normal;font-family:var(--font-body);">boot</span></sub></span></span>
+              <span class="kpi-val emerald" id="kpi-boot-se">—</span>
+            </div>
+            <div class="kpi-box">
+              <span class="kpi-label">Bootstrap Bias</span>
+              <span class="kpi-val" id="kpi-boot-bias">—</span>
+            </div>
+            <div class="kpi-box">
+              <span class="kpi-label">Bias / SE Ratio</span>
+              <span class="kpi-val" id="kpi-boot-bias-ratio">—</span>
+            </div>
+            <div class="kpi-box">
+              <span class="kpi-label">Completed <span class="math-tex">B</span></span>
+              <span class="kpi-val" id="kpi-boot-b">—</span>
+            </div>
+          </div>
+
+          <h4>Confidence Interval Procedures Table</h4>
+          <div class="table-scroll" style="margin-bottom:12px;">
+            <table class="stat-table" aria-label="All five bootstrap confidence intervals and classical counterpart">
+              <thead>
+                <tr>
+                  <th>Method</th>
+                  <th class="num">Lower</th>
+                  <th class="num">Upper</th>
+                  <th class="num">Width</th>
+                </tr>
+              </thead>
+              <tbody id="tbody-boot-intervals"></tbody>
+            </table>
+          </div>
+
+          <div id="boot-explanation-box" class="callout"></div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ==================================================================
+         DESTINATION 4: RANDOMIZATION & PERMUTATION STUDIO
+         ================================================================== -->
+    <section id="view-permutation" class="dest-view" aria-labelledby="tab-permutation">
+      <div class="studio-grid">
+        <aside class="module-card">
+          <div class="module-header">
+            <h2 class="module-title">Permutation &amp; Randomization Setup</h2>
+          </div>
+
+          <div class="control-group">
+            <label class="control-label" for="perm-preset-select">Study Dataset</label>
+            <select id="perm-preset-select" class="control-select">
+              <option value="sleep_deprivation_trial">Sleep Deprivation vs Control (Randomized Trial, N=21)</option>
+              <option value="small_exact_drug_pilot">Phase I Biomarker Pilot (Exact Enumeration C(10,5) = 252)</option>
+              <option value="cardioprotective_binary_trial">Post-Surgical Complication Rate (2 Binary Groups)</option>
+              <option value="wetsuit_swim_paired">Triathlon Wetsuit Velocity (Paired Sign-Flip, n=12)</option>
+              <option value="anscombe_quartet_1">Anscombe's Quartet I (Bivariate Slope/r Permutation)</option>
+              <option value="agronomy_fertilizer_anova">Crop Yield Fertilizer Trial (3-Group ANOVA F)</option>
+              <option value="clinical_triage_contingency">Emergency Triage vs Admission (3×2 Contingency χ²)</option>
+              <option value="custom_workbench">Active Custom Dataset from Inference Workbench</option>
+            </select>
+          </div>
+
+          <div class="control-group">
+            <label class="control-label" for="perm-stat-select">Test Statistic (<span class="math-tex">T</span>)</label>
+            <select id="perm-stat-select" class="control-select"></select>
+          </div>
+
+          <div class="control-group">
+            <label class="control-label" for="perm-alt-select">Alternative Hypothesis (<span class="math-tex">H<sub>a</sub></span>) &amp; Tail</label>
+            <select id="perm-alt-select" class="control-select">
+              <option value="two-sided">Two-Sided (Hₐ: θ ≠ 0, |T*| ≥ |T_obs|)</option>
+              <option value="greater">Right-Tailed (Hₐ: θ > 0, T* ≥ T_obs)</option>
+              <option value="less">Left-Tailed (Hₐ: θ < 0, T* ≤ T_obs)</option>
+            </select>
+          </div>
+
+          <div class="control-group">
+            <label class="control-label" for="perm-exact-toggle">Reference Distribution Mode</label>
+            <select id="perm-exact-toggle" class="control-select">
+              <option value="exact_if_available">Exact Enumeration if Reference Set &le; 3,000 (else Monte Carlo)</option>
+              <option value="monte_carlo_only">Monte Carlo Random Sampling (B Draws)</option>
+            </select>
+          </div>
+
+          <div class="control-group">
+            <label class="control-label" for="perm-pval-conv">Monte Carlo <span class="math-tex">p</span>-Value Convention</label>
+            <select id="perm-pval-conv" class="control-select">
+              <option value="plus_one">Plus-One Exact Valid Estimator: (b + 1) / (B + 1)</option>
+              <option value="raw">Raw Empirical Proportion: b / B</option>
+            </select>
+          </div>
+
+          <div class="control-group">
+            <label class="control-label" for="perm-replicates">
+              <span>Monte Carlo Shuffles (<span class="math-tex">B</span>)</span>
+              <span class="mono" id="perm-B-lbl">2000</span>
+            </label>
+            <input type="range" id="perm-replicates" class="control-range" min="200" max="10000" step="200" value="2000">
+          </div>
+
+          <div class="control-group">
+            <label class="control-label" for="perm-seed">Random Seed</label>
+            <div style="display:flex; gap:6px;">
+              <input type="number" id="perm-seed" class="control-input mono-input" value="4289104">
+              <button type="button" class="btn btn-sm" id="btn-perm-new-seed">New Seed</button>
+            </div>
+          </div>
+
+          <div class="btn-row">
+            <button type="button" class="btn btn-primary" id="btn-perm-run">Generate Null Distribution</button>
+            <button type="button" class="btn" id="btn-perm-export-csv">Export CSV</button>
+          </div>
+        </aside>
+
+        <div class="module-card">
+          <div class="module-header">
+            <h2 class="module-title">Null Reference Distribution Under <span class="math-tex">H<sub>0</sub></span></h2>
+            <span class="status-pill tool" id="perm-mode-badge">Monte Carlo Permutation</span>
+          </div>
+
+          <div id="perm-warnings-container"></div>
+
+          <div class="canvas-frame">
+            <div class="canvas-caption">
+              <strong id="perm-null-title">Null Distribution Under <span class="math-tex">H<sub>0</sub></span></strong>
+              <span class="mono" id="perm-null-subtitle"></span>
+            </div>
+            <canvas id="canvas-perm-null" class="plot-canvas" aria-label="Permutation null distribution histogram"></canvas>
+            <div class="legend-bar">
+              <span class="legend-item"><span class="legend-swatch" style="background:var(--color-neutral-bar, #94a3b8);"></span>Non-Extreme Null Realizations</span>
+              <span class="legend-item"><span class="legend-swatch" style="background:var(--color-secondary);"></span>Extreme Tail Region (<span class="math-tex">|T<sup>*</sup>| ≥ |T<sub><span style="font-style:normal;font-family:var(--font-body);">obs</span></sub>|</span>) &amp; Observed Statistic</span>
+            </div>
+          </div>
+
+          <div class="callout" id="perm-mechanism-box"></div>
+
+          <details class="collapsible-panel">
+            <summary>Inspect Sampled Permutations / Sign Configurations (First 5 Draws)</summary>
+            <div class="collapsible-body" style="padding:0;">
+              <div class="table-scroll" style="border:none;">
+                <table class="stat-table" aria-label="Example permuted configurations">
+                  <thead>
+                    <tr>
+                      <th>Shuffle #</th>
+                      <th class="num">Null Statistic (<span class="math-tex">T<sup>*b</sup></span>)</th>
+                      <th>Null Assignment / Sign Configuration Preview</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tbody-perm-examples"></tbody>
+                </table>
+              </div>
+            </div>
+          </details>
+        </div>
+
+        <aside class="module-card col-inspector">
+          <div class="module-header">
+            <h2 class="module-title">Hypothesis Test &amp; Evidence</h2>
+          </div>
+
+          <div class="kpi-grid">
+            <div class="kpi-box">
+              <span class="kpi-label">Observed <span class="math-tex">T<sub><span style="font-style:normal;font-family:var(--font-body);">obs</span></sub></span></span>
+              <span class="kpi-val vermilion" id="kpi-perm-obs">—</span>
+            </div>
+            <div class="kpi-box">
+              <span class="kpi-label">Empirical <span class="math-tex">p</span>-Value</span>
+              <span class="kpi-val emerald" id="kpi-perm-pval">—</span>
+            </div>
+            <div class="kpi-box">
+              <span class="kpi-label">Extreme Hits (<span class="math-tex">b</span>)</span>
+              <span class="kpi-val" id="kpi-perm-hits">—</span>
+            </div>
+            <div class="kpi-box">
+              <span class="kpi-label">Monte Carlo <span class="math-tex">SE(p&#770;)</span></span>
+              <span class="kpi-val" id="kpi-perm-mcse">—</span>
+            </div>
+            <div class="kpi-box">
+              <span class="kpi-label">Null Center</span>
+              <span class="kpi-val" id="kpi-perm-null-mean">—</span>
+            </div>
+            <div class="kpi-box">
+              <span class="kpi-label">Null Spread (<span class="math-tex">SE<sub>0</sub></span>)</span>
+              <span class="kpi-val" id="kpi-perm-null-sd">—</span>
+            </div>
+          </div>
+
+          <h4>Resampling vs Classical Counterpart</h4>
+          <div class="table-scroll" style="margin-bottom:12px;">
+            <table class="stat-table" aria-label="Comparison of permutation test and classical test">
+              <thead>
+                <tr>
+                  <th>Procedure</th>
+                  <th class="num">Statistic</th>
+                  <th class="num"><span class="math-tex">p</span>-Value</th>
+                </tr>
+              </thead>
+              <tbody id="tbody-perm-classical"></tbody>
+            </table>
+          </div>
+
+          <div id="perm-explanation-box" class="callout"></div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ==================================================================
+         DESTINATION 5: INFERENCE WORKBENCH (Real-Data Analysis, Import/Export, Classical Side-by-Side)
+         ================================================================== -->
+    <section id="view-workbench" class="dest-view" aria-labelledby="tab-workbench">
+      <div class="studio-grid">
+        <aside class="module-card">
+          <div class="module-header">
+            <h2 class="module-title">Data Import &amp; Method Decision</h2>
+          </div>
+
+          <div class="control-group">
+            <label class="control-label" for="wb-preset-load">Load Built-In or Paste CSV / TSV / JSON</label>
+            <select id="wb-preset-load" class="control-select">
+              <option value="sleep_deprivation_trial">Built-In: Sleep Deprivation Trial (2 Groups)</option>
+              <option value="skewed_repair_times">Built-In: Telecom Repair Times (1 Numerical)</option>
+              <option value="wetsuit_swim_paired">Built-In: Triathlon Wetsuit (Paired Design)</option>
+              <option value="anscombe_quartet_1">Built-In: Anscombe's Quartet I (Bivariate OLS)</option>
+              <option value="voter_poll_binary">Built-In: Voter Referendum Poll (1 Binary)</option>
+              <option value="cardioprotective_binary_trial">Built-In: Complication Rate (2 Binary Groups)</option>
+              <option value="agronomy_fertilizer_anova">Built-In: Fertilizer Yield (3-Group ANOVA)</option>
+              <option value="clinical_triage_contingency">Built-In: Triage Contingency Table (3×2)</option>
+            </select>
+          </div>
+
+          <div class="control-group">
+            <label class="control-label" for="wb-raw-input">Paste CSV, TSV, or Numbers (Editable)</label>
+            <textarea id="wb-raw-input" class="control-textarea mono-input" rows="5" placeholder="group,value&#10;Treatment,24.5&#10;Control,18.2"></textarea>
+          </div>
+
+          <div class="btn-row" style="margin-bottom:12px;">
+            <button type="button" class="btn btn-primary btn-sm" id="btn-wb-parse">Parse &amp; Validate Data</button>
+            <label class="btn btn-sm" for="wb-file-upload" style="cursor:pointer;">Upload CSV/JSON File</label>
+            <input type="file" id="wb-file-upload" accept=".csv,.tsv,.txt,.json" style="display:none;">
+          </div>
+
+          <div class="control-group">
+            <label class="control-label" for="wb-design-override">Verified Study Design Structure</label>
+            <select id="wb-design-override" class="control-select">
+              <option value="one_numerical">One Numerical Sample (Mean, Median, SD, IQR)</option>
+              <option value="one_binary">One Binary Sample (Proportion p)</option>
+              <option value="two_independent_numerical">Two Independent Numerical Groups (Diff in Means/Medians)</option>
+              <option value="two_independent_binary">Two Independent Binary Groups (Diff in Proportions)</option>
+              <option value="paired_numerical">Paired Numerical Measurements (Before/After Diff)</option>
+              <option value="bivariate_numerical">Two Numerical Variables (Correlation r &amp; OLS Slope)</option>
+              <option value="multi_group_numerical">More Than Two Numerical Groups (One-Way ANOVA F)</option>
+              <option value="contingency_categorical">Categorical Contingency Table (Chi-Square χ²)</option>
+            </select>
+          </div>
+
+          <div class="control-group">
+            <label class="control-label" for="wb-stat-select">Parameter &amp; Estimator</label>
+            <select id="wb-stat-select" class="control-select"></select>
+          </div>
+
+          <div class="btn-row">
+            <button type="button" class="btn btn-primary" id="btn-wb-run-all">Run Resampling + Classical Analysis</button>
+          </div>
+        </aside>
+
+        <div class="module-card">
+          <div class="module-header">
+            <h2 class="module-title">Side-by-Side Resampling &amp; Classical Inference Workbench</h2>
+            <span class="status-pill tool" id="wb-schema-badge">Validated Schema</span>
+          </div>
+
+          <div id="wb-validation-banner" class="callout"></div>
+
+          <div class="canvas-frame">
+            <div class="canvas-caption">
+              <strong>Bootstrap Confidence Distribution vs Classical Analytical Counterpart</strong>
+            </div>
+            <canvas id="canvas-wb-boot" class="plot-canvas" aria-label="Workbench bootstrap distribution"></canvas>
+          </div>
+
+          <h4>Complete Side-by-Side Method Comparison Table</h4>
+          <div class="table-scroll" style="margin-bottom:14px;">
+            <table class="stat-table" aria-label="Workbench comparison of resampling and classical procedures">
+              <thead>
+                <tr>
+                  <th>Inferential Procedure</th>
+                  <th class="num">Estimate</th>
+                  <th class="num">Std Error</th>
+                  <th class="num">95% Confidence Interval / Result</th>
+                  <th>Key Assumptions</th>
+                </tr>
+              </thead>
+              <tbody id="tbody-wb-comparison"></tbody>
+            </table>
+          </div>
+
+          <details class="collapsible-panel">
+            <summary>Reproducible Code &amp; Report Exporter (R, Python, JSON, CSV, SVG, PNG)</summary>
+            <div class="collapsible-body">
+              <div class="btn-row" style="margin-top:0; margin-bottom:8px;">
+                <button type="button" class="btn btn-sm" id="btn-wb-show-r">Generate R Script</button>
+                <button type="button" class="btn btn-sm" id="btn-wb-show-py">Generate Python Script</button>
+                <button type="button" class="btn btn-sm" id="btn-wb-show-json">DataSense JSON</button>
+                <button type="button" class="btn btn-sm" id="btn-wb-show-report">Readable Report</button>
+                <button type="button" class="btn btn-sm" id="btn-wb-download-csv">Download Summary CSV</button>
+                <button type="button" class="btn btn-sm" id="btn-wb-download-reps">Download Replicates CSV</button>
+                <button type="button" class="btn btn-sm" id="btn-wb-download-svg">Download Chart SVG</button>
+                <button type="button" class="btn btn-sm" id="btn-wb-download-png">Download Chart PNG</button>
+                <button type="button" class="btn btn-sm" id="btn-wb-download-session">Export Session JSON</button>
+              </div>
+              <pre id="wb-code-preview" class="control-textarea mono-input" style="max-height:190px; overflow:auto; white-space:pre; background:var(--color-surface-alt); padding:10px; margin:0;"></pre>
+            </div>
+          </details>
+        </div>
+
+        <aside class="module-card col-inspector">
+          <div class="module-header">
+            <h2 class="module-title">Dataset Inspector &amp; Report</h2>
+          </div>
+
+          <div id="wb-report-summary" class="callout"></div>
+
+          <details class="collapsible-panel" open>
+            <summary>Dataset Observation Preview (First 10 Rows)</summary>
+            <div class="collapsible-body" style="padding:0;">
+              <div class="table-scroll" style="border:none;">
+                <table class="stat-table" aria-label="Dataset observation preview">
+                  <thead id="thead-wb-preview"></thead>
+                  <tbody id="tbody-wb-preview"></tbody>
+                </table>
+              </div>
+            </div>
+          </details>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ==================================================================
+         DESTINATION 6: EXPERIMENT SIMULATOR (CI Coverage, Type I/II Errors, Power, Optional Stopping)
+         ================================================================== -->
+    <section id="view-experiments" class="dest-view" aria-labelledby="tab-experiments">
+      <div class="studio-grid">
+        <aside class="module-card">
+          <div class="module-header">
+            <h2 class="module-title">Repeated-Study Simulator</h2>
+          </div>
+
+          <div class="control-group">
+            <label class="control-label" for="exp-mode-select">Simulation Experiment Mode</label>
+            <select id="exp-mode-select" class="control-select">
+              <option value="coverage">1. Confidence Interval Coverage Across Repeated Studies</option>
+              <option value="power">2. Type I / Type II Errors &amp; Statistical Power Curve</option>
+              <option value="peeking">3. Optional Stopping / Repeated Data Peeking Inflation</option>
+              <option value="sample_size">4. Sample-Size Explorer: Precision (Margin of Error) &amp; Power</option>
+            </select>
+          </div>
+
+          <!-- Coverage Controls -->
+          <div id="exp-controls-coverage">
+            <div class="control-group">
+              <label class="control-label" for="exp-cov-dist">Population Shape</label>
+              <select id="exp-cov-dist" class="control-select">
+                <option value="normal">Normal (μ = 10, σ = 3)</option>
+                <option value="exponential">Exponential (Right-Skewed, λ = 0.2, μ = 5)</option>
+                <option value="lognormal">Lognormal (Heavy Skew, μ_log = 1, σ_log = 0.8)</option>
+                <option value="continuous_uniform">Uniform ([0, 20], μ = 10)</option>
+              </select>
+            </div>
+            <div class="control-group">
+              <label class="control-label" for="exp-cov-method">Interval Construction Procedure</label>
+              <select id="exp-cov-method" class="control-select">
+                <option value="t_interval">Student's t Interval (X̄ ± t SE)</option>
+                <option value="normal_z">Normal z Interval (X̄ ± z SE)</option>
+                <option value="bootstrap_percentile">Bootstrap Percentile Interval</option>
+              </select>
+            </div>
+            <div class="control-group">
+              <label class="control-label" for="exp-cov-n">Sample Size per Study (<span class="math-tex">n</span>): <span class="mono" id="exp-cov-n-lbl">25</span></label>
+              <input type="range" id="exp-cov-n" class="control-range" min="4" max="150" step="1" value="25">
+            </div>
+            <div class="control-group">
+              <label class="control-label" for="exp-cov-level">Nominal Confidence Level (<span class="math-tex">1-α</span>)</label>
+              <select id="exp-cov-level" class="control-select">
+                <option value="0.90">90% Nominal</option>
+                <option value="0.95" selected>95% Nominal</option>
+                <option value="0.99">99% Nominal</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Power Controls -->
+          <div id="exp-controls-power" style="display:none;">
+            <div class="control-group">
+              <label class="control-label" for="exp-pow-n">Sample Size per Group (<span class="math-tex">n</span>): <span class="mono" id="exp-pow-n-lbl">30</span></label>
+              <input type="range" id="exp-pow-n" class="control-range" min="5" max="150" step="5" value="30">
+            </div>
+            <div class="control-group">
+              <label class="control-label" for="exp-pow-delta">True Effect Shift (<span class="math-tex">δ = μ<sub>1</sub> - μ<sub>2</sub></span>): <span class="mono" id="exp-pow-delta-lbl">0.50</span></label>
+              <input type="range" id="exp-pow-delta" class="control-range" min="0.0" max="1.5" step="0.05" value="0.50">
+            </div>
+            <div class="control-group">
+              <label class="control-label" for="exp-pow-sd">Population SD (<span class="math-tex">σ</span>): <span class="mono" id="exp-pow-sd-lbl">1.0</span></label>
+              <input type="range" id="exp-pow-sd" class="control-range" min="0.5" max="3.0" step="0.1" value="1.0">
+            </div>
+            <div class="control-group">
+              <label class="control-label" for="exp-pow-alpha">Significance Threshold (<span class="math-tex">α</span>)</label>
+              <select id="exp-pow-alpha" class="control-select">
+                <option value="0.01">α = 0.01</option>
+                <option value="0.05" selected>α = 0.05</option>
+                <option value="0.10">α = 0.10</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Optional Stopping Controls -->
+          <div id="exp-controls-peeking" style="display:none;">
+            <div class="control-group">
+              <label class="control-label" for="exp-peek-maxn">Maximum Planned Sample Size (<span class="math-tex">N<sub>max</sub></span>): <span class="mono" id="exp-peek-maxn-lbl">60</span></label>
+              <input type="range" id="exp-peek-maxn" class="control-range" min="20" max="120" step="10" value="60">
+            </div>
+            <div class="control-group">
+              <label class="control-label" for="exp-peek-step">Peek Every <span class="math-tex">k</span> Observations: <span class="mono" id="exp-peek-step-lbl">5</span></label>
+              <input type="range" id="exp-peek-step" class="control-range" min="1" max="20" step="1" value="5">
+            </div>
+          </div>
+
+          <div class="control-group">
+            <label class="control-label" for="exp-seed">Simulation Seed</label>
+            <input type="number" id="exp-seed" class="control-input mono-input" value="4289104">
+          </div>
+
+          <div class="btn-row">
+            <button type="button" class="btn btn-primary" id="btn-exp-run">Run Repeated-Study Experiment</button>
+          </div>
+        </aside>
+
+        <div class="module-card">
+          <div class="module-header">
+            <h2 class="module-title" id="exp-main-title">Confidence Interval Coverage Visualization</h2>
+          </div>
+
+          <div class="canvas-frame">
+            <canvas id="canvas-exp-main" class="plot-canvas" aria-label="Experiment simulator primary plot"></canvas>
+          </div>
+
+          <div class="canvas-frame" id="exp-secondary-frame">
+            <div class="canvas-caption">
+              <strong id="exp-secondary-caption">Distribution of Realized Estimates / Test Statistics Across Studies</strong>
+            </div>
+            <canvas id="canvas-exp-secondary" class="plot-canvas" aria-label="Experiment simulator secondary plot"></canvas>
+          </div>
+        </div>
+
+        <aside class="module-card col-inspector">
+          <div class="module-header">
+            <h2 class="module-title">Operating Characteristics</h2>
+          </div>
+
+          <div class="kpi-grid" id="exp-kpi-container"></div>
+          <div id="exp-explanation-box" class="callout"></div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ==================================================================
+         DESTINATION 7: SIMULATION UNITY — "ONE DATASET, DIFFERENT QUESTIONS" (Part 13)
+         ================================================================== -->
+    <section id="view-unity" class="dest-view" aria-labelledby="tab-unity">
+      <div class="module-card">
+        <div class="module-header">
+          <div>
+            <h2 class="module-title">One Dataset, Different Questions — Conceptual Unity Studio</h2>
+            <p style="font-size:13px; color:var(--color-text-muted); margin:4px 0 0 0;">
+              Why do Sampling Distributions, Bootstrap Distributions, and Permutation Null Distributions have similar spreads (<span class="math-tex">SE</span>) but completely different horizontal centers? Compare all three side by side on the exact same scale.
+            </p>
+          </div>
+          <div class="btn-row" style="margin-top:0;">
+            <label style="font-size:13px;">True <span class="math-tex">μ<sub>1</sub></span>: <input type="number" id="unity-mu1" class="control-input mono-input" style="width:70px; display:inline-block;" value="55"></label>
+            <label style="font-size:13px;">True <span class="math-tex">μ<sub>2</sub></span>: <input type="number" id="unity-mu2" class="control-input mono-input" style="width:70px; display:inline-block;" value="50"></label>
+            <label style="font-size:13px;">Group <span class="math-tex">n</span>: <input type="number" id="unity-n" class="control-input mono-input" style="width:65px; display:inline-block;" value="25"></label>
+            <button type="button" class="btn btn-primary" id="btn-unity-run">Simulate &amp; Align All 3 Distributions</button>
+          </div>
+        </div>
+
+        <div class="canvas-frame">
+          <div class="canvas-caption">
+            <strong>1. True Sampling Distribution of <span class="math-tex"><span class="m-overline">X</span><sub>1</sub> - <span class="m-overline">X</span><sub>2</sub></span> (Draws Fresh Samples from Population <span class="math-tex">F</span>: Centered at True <span class="math-tex">μ<sub>1</sub> - μ<sub>2</sub></span>)</strong>
+            <span class="mono" id="unity-cap-sampling"></span>
+          </div>
+          <canvas id="canvas-unity-sampling" class="plot-canvas" aria-label="True sampling distribution"></canvas>
+        </div>
+
+        <div class="canvas-frame">
+          <div class="canvas-caption">
+            <strong>2. Nonparametric Bootstrap Distribution of <span class="math-tex"><span class="m-overline">X</span><sup>*</sup><sub>1</sub> - <span class="m-overline">X</span><sup>*</sup><sub>2</sub></span> (Resamples WITH Replacement from 1 Sample: Centered at Observed <span class="math-tex">θ&#770;</span>)</strong>
+            <span class="mono" id="unity-cap-bootstrap"></span>
+          </div>
+          <canvas id="canvas-unity-bootstrap" class="plot-canvas" aria-label="Bootstrap distribution on same horizontal scale"></canvas>
+        </div>
+
+        <div class="canvas-frame">
+          <div class="canvas-caption">
+            <strong>3. Permutation Null Distribution of <span class="math-tex"><span class="m-overline">X</span><sup><span style="font-style:normal;font-family:var(--font-body);">perm</span></sup><sub>1</sub> - <span class="m-overline">X</span><sup><span style="font-style:normal;font-family:var(--font-body);">perm</span></sup><sub>2</sub></span> (Shuffles Group Labels WITHOUT Replacement: Centered at Null <span class="math-tex">0.0</span>)</strong>
+            <span class="mono" id="unity-cap-permutation"></span>
+          </div>
+          <canvas id="canvas-unity-permutation" class="plot-canvas" aria-label="Permutation null distribution on same horizontal scale"></canvas>
+        </div>
+
+        <h4>Side-by-Side Structural Matrix: What Is Fixed vs Randomized?</h4>
+        <div class="table-scroll" style="margin-bottom:16px;">
+          <table class="stat-table" aria-label="Comparison of Sampling, Bootstrap, and Permutation distributions">
+            <thead>
+              <tr>
+                <th>Distribution Object</th>
+                <th>Source of Draws</th>
+                <th>What Is Held Fixed</th>
+                <th>What Is Randomized</th>
+                <th class="num">Distribution Center</th>
+                <th class="num">Spread (<span class="math-tex">SE</span>)</th>
+                <th>Inferential Purpose</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-unity-matrix"></tbody>
+          </table>
+        </div>
+
+        <details class="collapsible-panel">
+          <summary>Interactive 14-Concept Contrast Matrix (Part 13.2 — Click to Expand)</summary>
+          <div class="collapsible-body" style="padding:0;">
+            <div class="table-scroll" style="border:none;">
+              <table class="stat-table" aria-label="14 Foundational Contrasts in Computational Inference">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Contrast Pair</th>
+                    <th>Concept A</th>
+                    <th>Concept B</th>
+                    <th>Why They Are Not Interchangeable</th>
+                  </tr>
+                </thead>
+                <tbody id="tbody-unity-14-contrasts"></tbody>
+              </table>
+            </div>
+          </div>
+        </details>
+      </div>
+    </section>
+
+    <!-- ==================================================================
+         DESTINATION 8: INFERENCE ATLAS (Searchable Knowledge Library)
+         ================================================================== -->
+    <section id="view-atlas" class="dest-view" aria-labelledby="tab-atlas">
+      <div class="two-col-grid">
+        <aside class="module-card">
+          <div class="module-header">
+            <h2 class="module-title">Search &amp; Filter Atlas</h2>
+          </div>
+
+          <div class="control-group">
+            <label class="control-label" for="atlas-search-input">Full-Text Concept Search</label>
+            <input type="search" id="atlas-search-input" class="control-input" placeholder="Search BCa, CLT, exchangeability, p-value...">
+          </div>
+
+          <div class="control-group">
+            <label class="control-label" for="atlas-domain-filter">Knowledge Domain</label>
+            <select id="atlas-domain-filter" class="control-select">
+              <option value="all">All 7 Knowledge Domains</option>
+              <option value="probability">1. Probability Foundations</option>
+              <option value="sampling">2. Sampling Theory</option>
+              <option value="limits">3. Limit Theorems (LLN &amp; CLT)</option>
+              <option value="estimation">4. Estimation Theory</option>
+              <option value="resampling">5. Bootstrap &amp; Resampling</option>
+              <option value="testing">6. Hypothesis Testing &amp; Power</option>
+              <option value="modeling_advanced">7. Modeling &amp; Advanced Computation</option>
+            </select>
+          </div>
+
+          <div class="control-group">
+            <label class="control-label" for="atlas-status-filter">Implementation Classification</label>
+            <select id="atlas-status-filter" class="control-select">
+              <option value="all">All Coverage Classifications</option>
+              <option value="Full Analytical Tool">Full Analytical Tool</option>
+              <option value="Working Interactive Simulation">Working Interactive Simulation</option>
+              <option value="Complete Reference Article">Complete Reference Article</option>
+            </select>
+          </div>
+
+          <div id="atlas-entry-list" style="display:flex; flex-direction:column; gap:6px; max-height:540px; overflow-y:auto;"></div>
+        </aside>
+
+        <div class="module-card" id="atlas-article-viewer"></div>
+      </div>
+    </section>
+
+    <!-- ==================================================================
+         DESTINATION 9: GUIDED INVESTIGATIONS (12 Interactive Classroom Lessons)
+         ================================================================== -->
+    <section id="view-investigations" class="dest-view" aria-labelledby="tab-investigations">
+      <div class="two-col-grid">
+        <aside class="module-card">
+          <div class="module-header">
+            <h2 class="module-title">12 Guided Investigations</h2>
+          </div>
+          <p style="font-size:13px; color:var(--color-text-muted);">
+            Reproducible interactive challenges with preset seeds, live studio launches, and mathematical verification checkpoints.
+          </p>
+          <div id="inv-list-nav" style="display:flex; flex-direction:column; gap:6px;"></div>
+        </aside>
+
+        <div class="module-card" id="inv-detail-panel"></div>
+      </div>
+    </section>
+
+    <!-- ==================================================================
+         DESTINATION 10: METHODS, COVERAGE MATRIX, PRIVACY, & ABOUT
+         ================================================================== -->
+    <section id="view-methods" class="dest-view" aria-labelledby="tab-methods">
+      <div class="module-card">
+        <div class="module-header">
+          <h2 class="module-title">Mathematical Conventions, Coverage Matrix, &amp; Local-First Privacy</h2>
+          <button type="button" class="btn btn-sm" id="btn-clear-storage">Clear Local Browser Storage</button>
+        </div>
+
+        <div class="kpi-grid">
+          <div class="kpi-box">
+            <span class="kpi-label">PRNG Engine</span>
+            <span class="kpi-val emerald">Mulberry32 + SplitMix32</span>
+          </div>
+          <div class="kpi-box">
+            <span class="kpi-label">Quantile Convention</span>
+            <span class="kpi-val">Hyndman-Fan Type 7</span>
+          </div>
+          <div class="kpi-box">
+            <span class="kpi-label">Distributions</span>
+            <span class="kpi-val emerald">19 Families (9 Disc / 10 Cont)</span>
+          </div>
+          <div class="kpi-box">
+            <span class="kpi-label">Bootstrap Intervals</span>
+            <span class="kpi-val emerald">5 Methods (incl. BCa &amp; t)</span>
+          </div>
+          <div class="kpi-box">
+            <span class="kpi-label">Data Privacy</span>
+            <span class="kpi-val emerald">100% Client-Side Local</span>
+          </div>
+          <div class="kpi-box">
+            <span class="kpi-label">Runtime Dependencies</span>
+            <span class="kpi-val">0 External CDNs</span>
+          </div>
+        </div>
+
+        <details class="collapsible-panel" open>
+          <summary>Auditable Feature &amp; Method Coverage Matrix (13 Statistical Domains)</summary>
+          <div class="collapsible-body" style="padding:0;">
+            <div class="table-scroll" style="border:none;">
+              <table class="stat-table" aria-label="ResampleLab auditable coverage matrix">
+                <thead>
+                  <tr>
+                    <th>Statistical Domain / Procedure</th>
+                    <th>Coverage Classification</th>
+                    <th>Primary Module / Destination</th>
+                    <th>Mathematical Verification &amp; Notes</th>
+                  </tr>
+                </thead>
+                <tbody id="tbody-coverage-matrix"></tbody>
+              </table>
+            </div>
+          </div>
+        </details>
+
+        <h3>Local-First Privacy &amp; Security Architecture</h3>
+        <div class="callout">
+          <strong>Zero External Transmission Guarantee:</strong> ResampleLab executes 100% locally inside your web browser using pure ECMAScript modules and High-DPI HTML5 Canvas. Uploaded CSV/TSV/JSON datasets are parsed strictly in local memory, never transmitted over the network, and never embedded in public telemetry. Exported CSV files automatically sanitize cells starting with <code>=</code>, <code>+</code>, <code>-</code>, or <code>@</code> to prevent spreadsheet formula injection.
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ====================================================================
+       ECOSYSTEM FOOTER (DataSense Studio Interoperability Links)
+       ==================================================================== -->
+  <footer class="ecosystem-footer" role="contentinfo">
+    <div class="ecosystem-footer-inner">
+      <div>
+        <strong>ResampleLab v1.0.0</strong> — Part of the <strong>DataSense Studio</strong> Statistical Computing Ecosystem.
+        <span>100% Client-Side Static Architecture • WCAG 2.2 AA Accessible • Reproducible Mulberry32 PRNG</span>
+      </div>
+      <div class="eco-links" aria-label="DataSense Ecosystem Applications">
+        <span class="eco-chip" title="Bivariate OLS Regression, Diagnostics, and Exact-Moment Projection">QuartetLab (OLS &amp; Diagnostics)</span>
+        <span class="eco-chip" title="Data-Type Taxonomy, Chart Selection, and Visual Encoding Audit">VisualGrammar (Chart Taxonomy)</span>
+        <span class="eco-chip" style="border-color:var(--color-primary); color:var(--color-primary); font-weight:600;">ResampleLab (Active Studio)</span>
+        <span class="eco-chip" title="Time-Series Decomposition, ACF, and Forecast Fan Plots">ForecastLab (Time Series)</span>
+      </div>
+    </div>
+  </footer>
+
+  <div id="toast-banner" class="toast-banner" role="status" aria-live="polite"></div>
+
+  <script type="module" src="./js/app.js"></script>
+</body>
+</html>

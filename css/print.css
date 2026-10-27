@@ -1,0 +1,36 @@
+/* ============================================================================
+ * ResampleLab — Classroom Worksheet & Report Print Stylesheet
+ * ============================================================================ */
+
+@media print {
+  body {
+    background: #FFFFFF !important;
+    color: #000000 !important;
+    font-size: 11pt;
+  }
+
+  .instrument-header,
+  .dest-nav-bar,
+  .ecosystem-footer,
+  .btn,
+  .btn-row,
+  .no-print {
+    display: none !important;
+  }
+
+  .workspace-container {
+    max-width: 100% !important;
+    padding: 0 !important;
+  }
+
+  .studio-grid, .two-col-grid {
+    display: block !important;
+  }
+
+  .module-card {
+    border: 1px solid #999 !important;
+    box-shadow: none !important;
+    page-break-inside: avoid;
+    margin-bottom: 12pt !important;
+  }
+}

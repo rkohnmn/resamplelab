@@ -1,0 +1,70 @@
+/* ============================================================================
+ * ResampleLab — Canonical Design System Tokens (DESIGN.md v1.0.0)
+ * ============================================================================ */
+
+:root {
+  /* Light Archival Paper Theme (Default) */
+  --color-primary: #0F6E56;
+  --color-primary-hover: #0B5542;
+  --color-primary-soft: rgba(15, 110, 86, 0.12);
+  --color-secondary: #D9381E;
+  --color-secondary-soft: rgba(217, 56, 30, 0.12);
+  --color-surface: #FFFFFF;
+  --color-surface-alt: #FAF8F3;
+  --color-background: #F6F4EE;
+  --color-text: #141619;
+  --color-text-muted: #525866;
+  --color-border: #D8D4C8;
+  --color-error: #C92A2A;
+  --color-warning: #B45309;
+  --color-warning-soft: rgba(180, 83, 9, 0.12);
+  --color-success: #0F6E56;
+  --color-accent-highlight: #1D4ED8;
+  --color-alt-model: #7C3AED;
+  --color-canvas-grid: #EBE7DC;
+
+  /* Typography */
+  --font-headline: 'Instrument Serif', 'Georgia', 'Times New Roman', serif;
+  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+
+  /* Spacing Scale (8px base) */
+  --space-unit: 8px;
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+
+  /* Corner Radii */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 10px;
+
+  /* Elevation */
+  --shadow-sm: 0 1px 2px rgba(20, 22, 25, 0.06);
+  --shadow-md: 0 4px 12px rgba(20, 22, 25, 0.08);
+}
+
+[data-theme="dark"] {
+  --color-primary: #34D399;
+  --color-primary-hover: #10B981;
+  --color-primary-soft: rgba(52, 211, 153, 0.14);
+  --color-secondary: #F87171;
+  --color-secondary-soft: rgba(248, 113, 113, 0.14);
+  --color-surface: #151921;
+  --color-surface-alt: #1C212C;
+  --color-background: #0D1014;
+  --color-text: #F1F5F9;
+  --color-text-muted: #94A3B8;
+  --color-border: #2A3140;
+  --color-error: #F87171;
+  --color-warning: #F59E0B;
+  --color-warning-soft: rgba(245, 158, 11, 0.15);
+  --color-success: #34D399;
+  --color-accent-highlight: #60A5FA;
+  --color-alt-model: #A78BFA;
+  --color-canvas-grid: #1E2532;
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.35);
+  --shadow-md: 0 6px 16px rgba(0, 0, 0, 0.5);
+}
