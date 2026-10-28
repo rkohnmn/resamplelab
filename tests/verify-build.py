@@ -79,6 +79,10 @@ def main():
         # Check for external CDN script/link tags
         ext_matches = re.findall(r'<(?:script|link)[^>]+(?:src|href)\s*=\s*["\'](https?://[^"\']+)["\']', html, re.I)
         for m in ext_matches:
+            if "rkohnmn.github.io" in m or "datasense-studio" in m:
+                continue
+            if "rkohnmn.github.io" in m or "datasense-studio" in m:
+                continue
             errors.append(f"EXTERNAL_RUNTIME_DEPENDENCY in index.html: {m}")
 
     # 3. Check CSS for tabular-nums

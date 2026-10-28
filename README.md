@@ -1,5 +1,8 @@
 # ResampleLab
 
+[![Ecosystem Hub: DataSense Studio](https://img.shields.io/badge/Ecosystem%20Hub-DataSense%20Studio-0D1014?style=flat-square)](https://rkohnmn.github.io/datasense-studio/)
+[![DataSense Compass](https://img.shields.io/badge/DataSense-Compass%20Engine-D9381E?style=flat-square)](https://rkohnmn.github.io/datasense-studio/compass/)
+
 [![Deploy ResampleLab to GitHub Pages](https://github.com/rkohnmn/resamplelab/actions/workflows/deploy.yml/badge.svg)](https://github.com/rkohnmn/resamplelab/actions/workflows/deploy.yml)
 [![Ecosystem](https://img.shields.io/badge/Ecosystem-DataSense%20Studio-0d6efd)](https://github.com/rkohnmn/resamplelab)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)

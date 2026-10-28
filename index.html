@@ -3,20 +3,76 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ResampleLab — Probability, Sampling, Bootstrap, Permutation &amp; Computational Inference Studio</title>
-  <meta name="description" content="Explore randomness. Measure uncertainty. Understand evidence. An interactive laboratory for probability, sampling, bootstrap estimation, permutation testing, and statistical inference.">
+  <title>ResampleLab — Probability, Sampling, Bootstrap, Permutation &amp; Computational Inference Studio | DataSense Studio</title>
+  <meta name="description" content="Explore randomness. Measure uncertainty. Understand evidence. An interactive laboratory for probability, sampling, bootstrap estimation, permutation testing, and statistical inference in the DataSense Studio ecosystem.">
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+  <meta name="googlebot" content="index, follow">
+  <meta name="author" content="rkohnmn — DataSense Studio">
+  <meta name="keywords" content="ResampleLab, DataSense Studio, DataSense Compass, bootstrap confidence intervals, permutation tests, sampling distribution, computational inference, Monte Carlo simulation">
+  <link rel="canonical" href="https://rkohnmn.github.io/resamplelab/">
+
+  <!-- Open Graph / Social Discovery -->
+  <meta property="og:site_name" content="DataSense Studio">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="ResampleLab — Bootstrap &amp; Permutation Inference Laboratory">
+  <meta property="og:description" content="Explore randomness, measure uncertainty, and understand evidence with non-parametric bootstrap intervals and permutation testing.">
+  <meta property="og:url" content="https://rkohnmn.github.io/resamplelab/">
+  <meta property="og:locale" content="en_US">
+  <meta property="og:image" content="https://rkohnmn.github.io/datasense-studio/assets/screenshots/resamplelab.png">
+
+  <!-- Twitter / X -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="ResampleLab — Computational Inference Studio">
+  <meta name="twitter:description" content="Explore randomness, measure uncertainty, and understand evidence with non-parametric bootstrap intervals and permutation testing.">
+  <meta name="twitter:image" content="https://rkohnmn.github.io/datasense-studio/assets/screenshots/resamplelab.png">
+
+  <!-- Shared DataSense SVG Favicon -->
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230D1014'/%3E%3Cpath d='M7 22 L13 14 L18 18 L25 9' stroke='%2310B981' stroke-width='2.5' fill='none' stroke-linecap='round'/%3E%3Ccircle cx='25' cy='9' r='2.5' fill='%23D9381E'/%3E%3C/svg%3E">
   <link rel="stylesheet" href="./css/tokens.css">
   <link rel="stylesheet" href="./css/base.css">
   <link rel="stylesheet" href="./css/components.css">
   <link rel="stylesheet" href="./css/print.css">
-</head>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "ResampleLab",
+    "applicationCategory": "ScientificApplication",
+    "operatingSystem": "Web Browser",
+    "url": "https://rkohnmn.github.io/resamplelab/",
+    "description": "Interactive laboratory for probability, sampling, bootstrap estimation, permutation testing, and computational statistical inference.",
+    "isPartOf": {
+      "@type": "WebSite",
+      "name": "DataSense Studio",
+      "url": "https://rkohnmn.github.io/datasense-studio/"
+    }
+  }
+  </script></head>
 <body>
   <a href="#main-workspace" class="skip-link">Skip to main statistical workspace</a>
 
   <!-- ====================================================================
        TOP INSTRUMENT HEADER & EXPLANATION LEVEL SWITCHER
        ==================================================================== -->
-  <header class="instrument-header" role="banner">
+    <!-- Top Ecosystem Header -->
+  <div class="ecosystem-banner" style="background:#0D1014; color:#F6F4EE; padding:6px 16px; font-size:12px; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #232830;">
+    <div>
+      <strong style="color:#FFFFFF;">DataSense Studio Ecosystem:</strong>
+      <a href="https://rkohnmn.github.io/datasense-studio/" target="_blank" rel="noopener" style="color:#10B981; margin:0 8px; text-decoration:none; font-weight:600;">DataSense Hub ↗</a> |
+      <a href="https://rkohnmn.github.io/datasense-studio/compass/" target="_blank" rel="noopener" style="color:#38BDF8; margin:0 8px; text-decoration:none; font-weight:600;">DataSense Compass ↗</a> |
+      <a href="https://rkohnmn.github.io/datamend-lab/" target="_blank" rel="noopener" style="color:#A0A6AD; margin:0 8px; text-decoration:none;">01 · Prepare</a> |
+      <a href="https://rkohnmn.github.io/visualgrammar/" target="_blank" rel="noopener" style="color:#A0A6AD; margin:0 8px; text-decoration:none;">02 · Visualize</a> |
+      <a href="https://rkohnmn.github.io/quartetlab/" target="_blank" rel="noopener" style="color:#A0A6AD; margin:0 8px; text-decoration:none;">03 · Investigate</a> |
+      <span style="color:#10B981; margin:0 8px; font-weight:600;">● 04 · ResampleLab</span> |
+      <a href="https://rkohnmn.github.io/forecastlab/" target="_blank" rel="noopener" style="color:#A0A6AD; margin:0 8px; text-decoration:none;">05 · Forecast</a>
+    </div>
+    <div>
+      <span style="color:#A0A6AD; font-family:monospace;">04 · Infer Laboratory</span>
+    </div>
+  </div>
+
+<header class="instrument-header" role="banner">
     <div class="header-top-row">
       <div class="brand-block">
         <span class="brand-title">ResampleLab</span>
