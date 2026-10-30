@@ -1,3 +1,5 @@
+import { assertInputSize } from './import-safety.js';
+let importGeneration = 0;
 /**
  * ResampleLab — Main Application Controller & State Coordinator
  *
@@ -1099,6 +1101,7 @@ function renderPermutationStudioView() {
 // ============================================================================
 
 function loadPresetIntoWorkbench(presetId) {
+  ++importGeneration;
   const ds = getPresetDataset(presetId);
   state.workbench.title = ds.title;
   state.workbench.designType = ds.designType;
@@ -1165,9 +1168,9 @@ function executeWorkbenchAnalysis() {
   wb.permResult = permRes;
 
   const activeRes = bootRes?.distributionObject ? bootRes : permRes;
-  document.getElementById("wb-validation-banner").innerHTML = activeRes
-    ? `<strong>Validated Analysis:</strong> ${wb.title} (${activeRes.sampleSizeSummary}) — Target Estimand: <strong>${activeRes.estimand}</strong>.`
-    : `<strong>Validation Warning:</strong> Check dataset structure for the selected estimator.`;
+  document.getElementById("wb-validation-banner").textContent = activeRes
+    ? `Validated analysis: ${wb.title} (${activeRes.sampleSizeSummary}) — Target estimand: ${activeRes.estimand}.`
+    : `Validation warning: Check dataset structure for the selected estimator.`;
 
   if (bootRes?.distributionObject) {
     renderDistributionHistogram(
@@ -1248,8 +1251,10 @@ function executeWorkbenchAnalysis() {
 
   // Code & Report preview
   document.getElementById("wb-code-preview").textContent = generateRScript(activeRes, wb.dataPayload);
-  document.getElementById("wb-report-summary").innerHTML =
-    `<pre style="white-space:pre-wrap; margin:0; font-size:12px;">${generateReadableReport(activeRes)}</pre>`;
+  const reportPreview = document.createElement("pre");
+  reportPreview.style.cssText = "white-space:pre-wrap; margin:0; font-size:12px;";
+  reportPreview.textContent = generateReadableReport(activeRes);
+  document.getElementById("wb-report-summary").replaceChildren(reportPreview);
 
   // Dataset Preview Table
   const thead = document.getElementById("thead-wb-preview");
@@ -2189,10 +2194,11 @@ function initEventListeners() {
     loadPresetIntoWorkbench(e.target.value);
   });
   document.getElementById("btn-wb-parse")?.addEventListener("click", () => {
+    ++importGeneration;
     const raw = document.getElementById("wb-raw-input").value;
     const parsed = parseDelimitedDataset(raw);
     if (!parsed.valid) {
-      document.getElementById("wb-validation-banner").innerHTML = `<strong style="color:var(--color-error);">Parse Error:</strong> ${parsed.reason}`;
+      document.getElementById("wb-validation-banner").textContent = `Parse error: ${parsed.reason}`;
       return;
     }
     if (parsed.isSessionRestore && parsed.sessionPayload) {
@@ -2206,15 +2212,22 @@ function initEventListeners() {
       state.workbench.dataPayload = parsed.dataPayload;
     }
     document.getElementById("wb-design-override").value = parsed.inferredDesign;
-    populateStatisticSelect(document.getElementById("wb-stat-select"), parsed.inferredDesign, "");
+    populateStatisticSelect(document.getElementById("wb-stat-select"), parsed.inferredDesign, parsed.isSessionRestore ? state.workbench.statisticId : "");
     executeWorkbenchAnalysis();
     showToast(`Parsed ${parsed.rowCount} observations (${parsed.missingCount} missing excluded).`);
   });
   document.getElementById("wb-file-upload")?.addEventListener("change", (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    const generation = ++importGeneration;
+    try { assertInputSize(file.size); } catch (error) { document.getElementById("wb-validation-banner").textContent = error.message; return; }
     const reader = new FileReader();
+    reader.onerror = () => {
+      if (generation !== importGeneration) return;
+      document.getElementById("wb-validation-banner").textContent = "The file could not be read. Select it again or paste its contents above.";
+    };
     reader.onload = () => {
+      if (generation !== importGeneration) return;
       document.getElementById("wb-raw-input").value = String(reader.result || "");
       document.getElementById("btn-wb-parse").click();
     };

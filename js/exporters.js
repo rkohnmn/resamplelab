@@ -1,3 +1,5 @@
+import { STATISTIC_REGISTRY } from './stats-core.js';
+import { assertInputSize, assertTableSize, assertHeaders, missingNumber, readDelimitedRecords } from './import-safety.js';
 /**
  * ResampleLab — Multi-Format Exporters, CSV/TSV/JSON Importers, & Code Generators
  *
@@ -48,6 +50,29 @@ export function escapeCsvCell(value) {
  * @returns {object}
  */
 export function parseDelimitedDataset(rawText) {
+  try {
+    assertInputSize(rawText);
+    const result = parseDelimitedDatasetUnchecked(rawText);
+    if (result.valid) {
+      const size = validatePayload(result.inferredDesign, result.dataPayload);
+      assertTableSize(size.rows, size.columns);
+      result.rowCount = result.isSessionRestore ? size.rows : result.rowCount;
+    }
+    return result;
+  } catch (error) { return {valid:false, reason:error.message}; }
+}
+function validatePayload(design, payload) {
+  const finite = value => typeof value === 'number' && Number.isFinite(value);
+  const vector = (values, binary=false) => Array.isArray(values) && values.length >= 2 && values.every(v => finite(v) && (!binary || v === 0 || v === 1));
+  if (['one_numerical','one_binary'].includes(design) && vector(payload, design==='one_binary')) return {rows:payload.length, columns:1};
+  if (design==='paired_numerical' && vector(payload)) return {rows:payload.length,columns:1};
+  if (['paired_numerical','bivariate_numerical'].includes(design) && Array.isArray(payload) && payload.length>=2 && payload.every(p=>p && finite(p.x) && finite(p.y))) return {rows:payload.length,columns:2};
+  if (['two_independent_numerical','two_independent_binary'].includes(design) && payload && vector(payload.g1,design.endsWith('binary')) && vector(payload.g2,design.endsWith('binary'))) return {rows:payload.g1.length+payload.g2.length,columns:2};
+  if (design==='multi_group_numerical' && Array.isArray(payload) && payload.length>=2 && payload.every(g=>vector(g))) return {rows:payload.flat().length,columns:payload.length};
+  if (design==='contingency_categorical' && Array.isArray(payload) && payload.length>=2 && payload[0].length>=2 && payload.every(row=>row.length===payload[0].length && row.every(v=>Number.isInteger(v) && v>=0)) && payload.flat().some(v=>v>0)) return {rows:payload.length,columns:payload[0].length};
+  throw new Error('Dataset does not match its analysis design. Provide at least two complete observations per sample and finite numeric values.');
+}
+function parseDelimitedDatasetUnchecked(rawText) {
   const text = String(rawText ?? "").trim();
   if (!text) {
     return { valid: false, reason: "Input text is empty." };
@@ -58,6 +83,9 @@ export function parseDelimitedDataset(rawText) {
     try {
       const obj = JSON.parse(text);
       if (obj && obj.sessionType === "ResampleLabSession") {
+        if (obj.statisticId && (!Object.hasOwn(STATISTIC_REGISTRY, obj.statisticId) || STATISTIC_REGISTRY[obj.statisticId].designType !== obj.designType)) {
+          return {valid:false, reason:"The saved statistic does not match the session's analysis design."};
+        }
         return {
           valid: true,
           isSessionRestore: true,
@@ -80,8 +108,8 @@ export function parseDelimitedDataset(rawText) {
             .map((row, idx) => ({
               obs_id: row.obs_id || `row_${idx + 1}`,
               label: row.label || `Case ${idx + 1}`,
-              x: Number(row[kx]),
-              y: Number(row[ky])
+              x: missingNumber(row[kx]),
+              y: missingNumber(row[ky])
             }))
             .filter((p) => Number.isFinite(p.x) && Number.isFinite(p.y));
           return {
@@ -95,10 +123,11 @@ export function parseDelimitedDataset(rawText) {
         }
       }
       if (Array.isArray(obj)) {
-        if (typeof obj[0] === "number") {
+        if (obj.length && obj.every(value => value === null || (typeof value === "number" && Number.isFinite(value)))) {
           const nums = obj.filter((v) => Number.isFinite(v));
           return {
             valid: nums.length >= 2,
+            reason: nums.length < 2 ? "Provide at least two numeric observations." : undefined,
             rowCount: nums.length,
             missingCount: obj.length - nums.length,
             inferredDesign: "one_numerical",
@@ -117,8 +146,9 @@ export function parseDelimitedDataset(rawText) {
           };
         }
       }
+      return {valid:false, reason:"Unsupported JSON structure. Import observations, a numeric array, or a valid ResampleLab session."};
     } catch (_err) {
-      return { valid: false, reason: "Invalid JSON syntax in input." };
+      return { valid: false, reason: "Invalid JSON syntax or observation structure in input." };
     }
   }
 
@@ -132,30 +162,6 @@ export function parseDelimitedDataset(rawText) {
   let delimiter = ",";
   if (firstLine.includes("\t")) delimiter = "\t";
   else if (!firstLine.includes(",") && firstLine.includes(";")) delimiter = ";";
-
-  const splitRow = (line) => {
-    const out = [];
-    let cur = "";
-    let inQuotes = false;
-    for (let i = 0; i < line.length; i++) {
-      const ch = line[i];
-      if (ch === '"') {
-        if (inQuotes && line[i + 1] === '"') {
-          cur += '"';
-          i++;
-        } else {
-          inQuotes = !inQuotes;
-        }
-      } else if (ch === delimiter && !inQuotes) {
-        out.push(cur.trim());
-        cur = "";
-      } else {
-        cur += ch;
-      }
-    }
-    out.push(cur.trim());
-    return out;
-  };
 
   // Single-line comma-separated numbers
   if (lines.length === 1) {
@@ -175,7 +181,7 @@ export function parseDelimitedDataset(rawText) {
     }
   }
 
-  const parsedRows = lines.map(splitRow);
+  const parsedRows = readDelimitedRecords(text, delimiter).records;
   const firstTokens = parsedRows[0];
   const isFirstHeader = firstTokens.some((tok) => tok !== "" && Number.isNaN(Number(tok)));
 
@@ -188,6 +194,9 @@ export function parseDelimitedDataset(rawText) {
     return { valid: false, reason: "At least 2 data rows are required." };
   }
 
+  assertHeaders(headers);
+  assertTableSize(dataRows.length, headers.length);
+  if (dataRows.some(row => row.length !== headers.length)) throw new Error("Column counts do not match. Check delimiters and missing cells.");
   const colCount = headers.length;
   const columns = headers.map((name, colIdx) => {
     const rawVals = dataRows.map((r) => (r[colIdx] !== undefined ? r[colIdx] : ""));
@@ -226,11 +235,11 @@ export function parseDelimitedDataset(rawText) {
     if (col.type === "binary") {
       inferredDesign = "one_binary";
       dataPayload = col.rawValues
-        .filter((v) => v !== "" && v !== "NA")
+        .filter((v) => ["0","1","yes","no","true","false"].includes(String(v).toLowerCase()))
         .map((v) => (["1", "yes", "true"].includes(String(v).toLowerCase()) ? 1 : 0));
     } else {
       inferredDesign = "one_numerical";
-      dataPayload = col.rawValues.map(Number).filter((v) => Number.isFinite(v));
+      dataPayload = col.rawValues.map(missingNumber).filter((v) => Number.isFinite(v));
     }
   } else if (colCount >= 2) {
     const c0 = columns[0];
@@ -242,7 +251,7 @@ export function parseDelimitedDataset(rawText) {
       const g2 = [];
       for (let i = 0; i < dataRows.length; i++) {
         const grp = c0.rawValues[i];
-        const num = Number(c1.rawValues[i]);
+        const num = missingNumber(c1.rawValues[i]);
         if (grp && Number.isFinite(num)) {
           if (grp === levels[0]) g1.push(num);
           else if (grp === levels[1]) g2.push(num);
@@ -255,8 +264,8 @@ export function parseDelimitedDataset(rawText) {
     } else if ((c0.type === "quantitative" || c0.type === "binary") && (c1.type === "quantitative" || c1.type === "binary")) {
       const pairs = [];
       for (let i = 0; i < dataRows.length; i++) {
-        const x = Number(c0.rawValues[i]);
-        const y = Number(c1.rawValues[i]);
+        const x = missingNumber(c0.rawValues[i]);
+        const y = missingNumber(c1.rawValues[i]);
         if (Number.isFinite(x) && Number.isFinite(y)) {
           pairs.push({ obs_id: `row_${i + 1}`, label: `Row ${i + 1}`, x, y });
         } else {
@@ -267,13 +276,13 @@ export function parseDelimitedDataset(rawText) {
       dataPayload = pairs;
     } else {
       const quantCol = columns.find((c) => c.type === "quantitative") || columns[0];
-      dataPayload = quantCol.rawValues.map(Number).filter((v) => Number.isFinite(v));
+      dataPayload = quantCol.rawValues.map(missingNumber).filter((v) => Number.isFinite(v));
       inferredDesign = "one_numerical";
     }
   }
 
   const previewRows = dataRows.slice(0, 8).map((r, idx) => {
-    const obj = { obs_id: `row_${idx + 1}` };
+    const obj = Object.assign(Object.create(null), {obs_id:`row_${idx+1}`});
     headers.forEach((h, cIdx) => {
       obj[h] = r[cIdx] ?? "";
     });
@@ -438,7 +447,7 @@ export function generateRScript(result, rawDataPayload) {
     "# =============================================================================",
     "# ResampleLab Reproducible R Script",
     `# Analysis: ${result?.statisticName || statId} (${result?.analysisType || "resampling"})`,
-    `# Dataset:  ${result?.datasetTitle || "Custom Data"}`,
+    `# Dataset:  ${String(result?.datasetTitle || "Custom Data").replace(/[\r\n]/g, " ")}`,
     `# PRNG Note: R uses Mersenne-Twister by default while ResampleLab uses ${result?.prng?.algorithm || "Mulberry32"}.`,
     "#            Summary moments, SEs, and CIs agree within Monte Carlo tolerance.",
     "# =============================================================================",
@@ -500,7 +509,7 @@ export function generatePythonScript(result, rawDataPayload) {
     "# =============================================================================",
     "# ResampleLab Reproducible Python Script",
     `# Analysis: ${result?.statisticName || "Resampling Inference"}`,
-    `# Dataset:  ${result?.datasetTitle || "Custom Data"}`,
+    `# Dataset:  ${String(result?.datasetTitle || "Custom Data").replace(/[\r\n]/g, " ")}`,
     "# =============================================================================",
     "import numpy as np",
     "from scipy import stats",

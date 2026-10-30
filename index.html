@@ -31,6 +31,7 @@
   <link rel="stylesheet" href="./css/tokens.css">
   <link rel="stylesheet" href="./css/base.css">
   <link rel="stylesheet" href="./css/components.css">
+  <link rel="stylesheet" href="./css/product.css" media="screen">
   <link rel="stylesheet" href="./css/print.css">
 
   <script type="application/ld+json">
@@ -858,7 +859,8 @@
           <div class="btn-row" style="margin-bottom:12px;">
             <button type="button" class="btn btn-primary btn-sm" id="btn-wb-parse">Parse &amp; Validate Data</button>
             <label class="btn btn-sm" for="wb-file-upload" style="cursor:pointer;">Upload CSV/JSON File</label>
-            <input type="file" id="wb-file-upload" accept=".csv,.tsv,.txt,.json" style="display:none;">
+            <p class="import-guidance">Local import · Up to 2 MB, 5,000 rows, 40 columns, and 100,000 cells. For larger datasets, choose a subset.</p>
+        <input type="file" id="wb-file-upload" accept=".csv,.tsv,.txt,.json" style="display:none;">
           </div>
 
           <div class="control-group">
@@ -891,7 +893,7 @@
             <span class="status-pill tool" id="wb-schema-badge">Validated Schema</span>
           </div>
 
-          <div id="wb-validation-banner" class="callout"></div>
+          <div id="wb-validation-banner" role="status" aria-live="polite" class="callout"></div>
 
           <div class="canvas-frame">
             <div class="canvas-caption">

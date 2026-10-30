@@ -186,3 +186,8 @@ Pushing to the `main` branch triggers `.github/workflows/deploy.yml`:
 ## 6. License
 
 MIT License. Developed as part of the **DataSense Studio** computational statistics ecosystem.
+
+
+## Product quality and browser checks
+
+See [PRODUCT_AUDIT.md](PRODUCT_AUDIT.md) for the responsive-interface changes, import contracts and limits, regression coverage, and remaining work. After installing the development requirements and Chromium, run `npm run test:browser` for actual browser validation.
