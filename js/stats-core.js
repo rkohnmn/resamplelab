@@ -608,23 +608,33 @@ export function sampleWeightedWithReplacement(items, weights, n, prng) {
  */
 export function sampleStratified(populationRecords, n, withReplacement, prng) {
   const N = populationRecords.length;
-  if (N === 0 || n <= 0) return [];
+  if (!Number.isSafeInteger(n) || n < 0 || n > 100000) {
+    throw new Error("Stratified sampling requires an integer sample size between 0 and 100,000.");
+  }
+  if (n === 0) return [];
+  if (N === 0) throw new Error("Cannot sample from an empty population.");
+  if (!withReplacement && n > N) {
+    throw new Error(`Cannot sample n=${n} without replacement from finite population of size N=${N}.`);
+  }
   const strataMap = new Map();
   for (const rec of populationRecords) {
     const key = String(rec.stratum ?? "default");
     if (!strataMap.has(key)) strataMap.set(key, []);
     strataMap.get(key).push(rec);
   }
+  // Hamilton/largest-remainder allocation: quotas sum to exactly n, even if n < #strata.
+  const quotas = Array.from(strataMap.values(), (items, index) => {
+    const exact = (n * items.length) / N;
+    const count = Math.floor(exact);
+    return { items, index, count, remainder: exact - count };
+  });
+  let remaining = n - quotas.reduce((sum, q) => sum + q.count, 0);
+  const ranked = [...quotas].sort((a, b) => b.remainder - a.remainder || a.index - b.index);
+  for (let i = 0; i < remaining; i++) ranked[i].count++;
+
   const result = [];
-  let remaining = n;
-  const entries = Array.from(strataMap.entries());
-  for (let i = 0; i < entries.length; i++) {
-    const [, items] = entries[i];
-    const nh = i === entries.length - 1
-      ? Math.max(0, remaining)
-      : Math.max(1, Math.round((items.length / N) * n));
-    remaining -= nh;
-    const count = withReplacement ? nh : Math.min(nh, items.length);
+  for (const { items, count } of quotas) {
+    if (count === 0) continue;
     const drawn = withReplacement
       ? sampleWithReplacement(items, count, prng)
       : sampleWithoutReplacement(items, count, prng);
@@ -672,21 +682,25 @@ export function permuteWithinBlocks(records, prng) {
   for (const rec of records) {
     const bKey = String(rec.block ?? "Block_1");
     const gKey = String(rec.group ?? "G1");
+    const value = Number(rec.value);
+    if (!Number.isFinite(value)) throw new Error("Blocked permutation requires finite numeric outcomes.");
     groupSet.add(gKey);
     if (!blocks.has(bKey)) blocks.set(bKey, []);
-    blocks.get(bKey).push({ group: gKey, value: Number(rec.value) });
+    blocks.get(bKey).push({ group: gKey, value });
   }
   const labels = Array.from(groupSet);
-  const g1Label = labels[0] || "G1";
-  const g2Label = labels[1] || "G2";
+  if (labels.length !== 2) {
+    throw new Error(`Blocked two-group permutation requires exactly two treatment labels; found ${labels.length}.`);
+  }
+  const [g1Label, g2Label] = labels;
   const g1 = [];
   const g2 = [];
-
   for (const [, items] of blocks.entries()) {
     const shuffledGroups = prng.shuffle(items.map((it) => it.group));
     for (let i = 0; i < items.length; i++) {
       if (shuffledGroups[i] === g1Label) g1.push(items[i].value);
-      else g2.push(items[i].value);
+      else if (shuffledGroups[i] === g2Label) g2.push(items[i].value);
+      else throw new Error("Unexpected treatment label in blocked permutation.");
     }
   }
   return { g1, g2, groupLabels: [g1Label, g2Label] };

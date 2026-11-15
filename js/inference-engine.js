@@ -28,6 +28,7 @@ import { createPRNG, PRNG_VERSION } from "./prng.js";
 import {
   normalCDF,
   inverseNormalCDF,
+  studentTCDF,
   studentTQuantile,
   getDistribution
 } from "./distributions.js";
@@ -147,11 +148,13 @@ export function runBootstrapAnalysis(config) {
 
   const warnings = [];
   if (isDependentTimeSeries) {
-    warnings.push({
+    const issue = {
       code: "DEPENDENT_DATA_IID_BOOTSTRAP",
       severity: "error",
       message: "Autocorrelated or time-series dependence detected. Ordinary i.i.d. case resampling destroys temporal dependence and yields invalid standard errors and intervals. Consider block bootstrap or time-series models."
-    });
+    };
+    // Fail closed: don't present knowingly invalid confidence intervals as successful inference.
+    return { valid: false, code: issue.code, reason: issue.message, warnings: [issue], analysisType: "bootstrap_inference", datasetTitle };
   }
   if (B < 1000) {
     warnings.push({
@@ -540,7 +543,7 @@ export function runPermutationAnalysis(config) {
     seed = 4289104,
     useExactIfAvailable = false,
     pValueConvention = "plus_one", // "plus_one" -> (b+1)/(B+1) or "raw" -> b/B
-    studyDesign = "randomized_experiment", // "randomized_experiment" or "observational_study"
+    studyDesign = "observational_study", // randomized experiments require explicit, documented designation
     datasetTitle = "Observed Study Data"
   } = config;
 
@@ -1118,7 +1121,7 @@ export function runOptionalStoppingSimulation(config = {}) {
         const se = sdVal / Math.sqrt(i);
         const tStat = se > EPSILON ? Math.abs(m / se) : 0;
         const tCrit = studentTQuantile(1 - alpha / 2, i - 1);
-        const pVal = 2 * (1 - normalCDF(tStat));
+        const pVal = 2 * (1 - studentTCDF(tStat, i - 1));
         if (s === 0) {
           sampleTrajectory.push({ n: i, tStat, tCrit, pVal });
         }

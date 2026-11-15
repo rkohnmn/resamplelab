@@ -875,7 +875,32 @@ function executeBootstrapStudio() {
 function renderBootstrapStudioView() {
   const bState = state.bootstrap;
   const res = bState.lastResult;
-  if (!res || !res.distributionObject) return;
+  if (!res) return;
+  if (res.valid === false) {
+    const reason = res.reason || "Bootstrap inference could not be computed safely.";
+    // Clear prior estimates and plots; otherwise a failed run leaves apparently valid old CIs on screen.
+    for (const id of ["boot-warnings-container", "boot-dist-subtitle", "boot-explanation-box"]) {
+      const el = document.getElementById(id);
+      if (el) el.textContent = reason;
+    }
+    const badge = document.getElementById("boot-resampling-badge");
+    if (badge) badge.textContent = "Inference blocked";
+    for (const id of ["kpi-boot-est", "kpi-boot-mean", "kpi-boot-se", "kpi-boot-bias", "kpi-boot-bias-ratio", "kpi-boot-b"]) {
+      const el = document.getElementById(id);
+      if (el) el.textContent = "—";
+    }
+    for (const id of ["tbody-boot-intervals", "tbody-boot-resamples"]) {
+      const el = document.getElementById(id);
+      if (el) el.replaceChildren();
+    }
+    for (const id of ["canvas-boot-dist", "canvas-boot-ci-comp"]) {
+      const canvas = document.getElementById(id);
+      const context = canvas?.getContext?.("2d");
+      if (context) context.clearRect(0, 0, canvas.width, canvas.height);
+    }
+    return;
+  }
+  if (!res.distributionObject) return;
   const pal = getCanvasPalette();
 
   document.getElementById("boot-resampling-badge").textContent = res.resamplingMechanism;
@@ -999,7 +1024,7 @@ function executePermutationStudio() {
     seed: pState.seed,
     useExactIfAvailable: pState.exactMode === "exact_if_available",
     pValueConvention: pState.pValConv,
-    studyDesign: ds.studyDesign || "randomized_experiment",
+    studyDesign: ds.studyDesign || "observational_study",
     datasetTitle: ds.title
   });
   pState.lastResult = res;
